@@ -1,4 +1,5 @@
 # vue-cli3.0-iframe-loadhtml
+一个vue-cli3.0 构建的项目使用使用iframe 引用本地静态html文件的demo
 
 ## Project setup
 ```
