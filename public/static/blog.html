@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vue中 iframe 引入 本地静态html文件，vue-cli2与vue-cli3引用的差异</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>vue中 iframe 引入 本地静态html文件，vue-cli2与vue-cli3引用的差异。</h3><ul><li><a href="#_1">引言</a></li><li><a href="#Vuecli_20__3">Vue-cli 2.0 构建的项目引用</a></li><li><a href="#Vuecli_30__16">Vue-cli 3.0 构建的项目引用</a></li><li><a href="#_29">不考虑项目构建版本的方法</a></li><ul><li><a href="#1webpack_30">1.如果你是webpack工程师，你就自己配置打包方式。</a></li><li><a href="#2require__33">2.使用require() 引入</a></li></ul><li><a href="#_107">总结</a></li></ul></div><p></p>
+<h1><a id="_1"></a>引言</h1>
+<p>  在写个人网站的时候，需要用到 <code>iframe</code> 引用本地静态的 <code>html</code> 文件，发现引用方式的一些差异，在此分享一下。</p>
+<h1><a id="Vuecli_20__3"></a>Vue-cli 2.0 构建的项目引用</h1>
+<p>在vue-cli 2.0 构建的项目中，如果要使用 <code>iframe</code> 引用本地的静态 <code>html</code> 文件，静态文件需要放置在和 <code>src</code> 同级的文件加夹 <code>static</code> 中。<br>
+如下图：<br>
+<img src="https://img-blog.csdnimg.cn/20200508171508313.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3J1ZHlfemhvdQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+在使用 <code>iframe</code> 的地方直接写 <strong>“相对路径”</strong> 就行，如下图：<br>
+<img src="https://img-blog.csdnimg.cn/20200508172317775.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3J1ZHlfemhvdQ==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+这里还是需要解释一下，这里的路径，在打包后不会变化。都是根据打包后的路径查找静态文件，因此上方用 <strong>“相对路径”</strong> 描述并不准确，而是打包后的 <strong>“相对路径”</strong>，看下图就明白了。</p>
+<p>这是 打包后的文件层级关系<br>
+<img src="https://img-blog.csdnimg.cn/20200508172952787.png" alt="打包后的文件层级关系"><br>
+这里我写了很多 <code>../../../</code>，最后发现真实的引用路径还是 <code>http://localhost:8080/static/blog.html</code>，因为向上查找已经到根目录了，所以不管写多少个<code>../</code>，实际路径还是<code>http://localhost:8080/static/blog.html</code>，因此 下方路径直接写 <code>./static/blog.html</code> 也是一样的，根据上方打包后的层级关系对照一下就明白了。<br>
+<img src="https://img-blog.csdnimg.cn/20200508173105393.png" alt="在这里插入图片描述"></p>
+<h1><a id="Vuecli_30__16"></a>Vue-cli 3.0 构建的项目引用</h1>
+<p>在Vue-cli 3.0 构建的项目中使用 <code>iframe</code> 引用本地静态 <code>html</code> 文件，和 2.0基本一样，唯一的区别在于，静态<code>html</code> 文件不是放置在 <code>src</code> 同级的文件夹中，而是放在 <code>public</code> 文件夹下。<br>
+如下图：<br>
+<img src="https://img-blog.csdnimg.cn/20200508174245283.png" alt="在这里插入图片描述"><br>
+当然，也可以不用放在 <code>static</code> 文件夹下。<code>public</code> 文件下的文件（包括文件夹），打包后的层级不会发生变化，因此可以自定义名称。<br>
+不能改变的是，只能放在<code>public</code> 文件夹下。</p>
+<p>其它注意点与Vue-cli 2.0 构建的项目相同，就不一一赘述。</p>
+<p>那有没有随意放在其它层级还能使用的方法，而且不需要考虑Vue-cli 2.0 还是 3.0 构建的项目，其实也是有的。</p>
+<br>
+<h1><a id="_29"></a>不考虑项目构建版本的方法</h1>
+<h2><a id="1webpack_30"></a>1.如果你是webpack工程师，你就自己配置打包方式。</h2>
+<p>好吧，这是废话</p>
+<h2><a id="2require__33"></a>2.使用require() 引入</h2>
+<p><code>html</code> 文件我放在和 <code>vue</code> 文件同级，如下：<br>
+<img src="https://img-blog.csdnimg.cn/20200508180542790.png" alt="在这里插入图片描述"><br>
+<code>Home.vue</code> 中这样写</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>template</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>home<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">@click</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>clickHandle<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>switch<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>iframe</span> <span class="token attr-name">ref</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>iframe<span class="token punctuation">"</span></span> <span class="token attr-name">frameborder</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>0<span class="token punctuation">"</span></span> <span class="token attr-name">v-if</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>ifIframe<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>iframe</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>template</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<pre><code class="prism language-javascript"><span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token punctuation">{</span>
+  name<span class="token punctuation">:</span> <span class="token string">"Home"</span><span class="token punctuation">,</span>
+  <span class="token function">data</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+      ifIframe<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+      iframeData<span class="token punctuation">:</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"./blog.html"</span><span class="token punctuation">)</span>
+      <span class="token comment">// src: "./static/blog.html"</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token function">mounted</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>$refs<span class="token punctuation">.</span>iframe<span class="token punctuation">.</span>contentDocument<span class="token punctuation">.</span>documentElement<span class="token punctuation">.</span>innerHTML <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>iframeData<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  methods<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token function">clickHandle</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 1.通过DOM操作切换数据源信息</span>
+      <span class="token comment">// 因可能在iframe内部点击了外链信息，src会发生改变，可能就不属于同源。不同源外部就无法操作iframe内部DOM，因此使用v-if 删除DOM后再显示清空src信息</span>
+      <span class="token comment">// 也可以使用其他方式清除，比如用v-bind 绑定src</span>
+      <span class="token comment">// this.ifIframe = false;</span>
+
+      <span class="token keyword">this</span><span class="token punctuation">.</span>$refs<span class="token punctuation">.</span>iframe<span class="token punctuation">.</span><span class="token function">removeAttribute</span><span class="token punctuation">(</span><span class="token string">"src"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">$nextTick</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token comment">// this.ifIframe = true;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">$nextTick</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+          <span class="token keyword">this</span><span class="token punctuation">.</span>$refs<span class="token punctuation">.</span>iframe<span class="token punctuation">.</span>contentDocument<span class="token punctuation">.</span>documentElement<span class="token punctuation">.</span>innerHTML <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"./second.html"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token comment">// 2.切换路径促使切换数据</span>
+      <span class="token comment">// this.src = "./static/second.html";</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<p>上面就是通过 <code>require()</code> 获取到文件，再给 <code>iframe</code> 的 <code>contentDocument.documentElement.innerHTML</code> 赋值。</p>
+<p>这种方式有一点问题就是，不同源的 <code>iframe</code> 无法操作内部 <code>Dom</code> 信息，所以可以使用 <code>removeAttribute</code> 删除 <code>src</code> 再赋值，上方<code>code</code> 中也有描述。</p>
+<p>使用这种方式还需要安装<code>html-loader</code> 插件，不然<code>require()</code> 引入的文件无法解析。</p>
+<p>使用命令安装：</p>
+<pre><code class="prism language-bash"><span class="token function">npm</span> i html-loader --save-dev
+</code></pre>
+<p>再在 <code>vue.config.js</code> 配置，没有这个文件的就自己新建一个，放在最外层。</p>
+<pre><code class="prism language-javascript">module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  chainWebpack<span class="token punctuation">:</span> config <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    config<span class="token punctuation">.</span>module
+      <span class="token punctuation">.</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">"html"</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">test</span><span class="token punctuation">(</span><span class="token regex">/\.html$/</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token string">"html-loader"</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">loader</span><span class="token punctuation">(</span><span class="token string">"html-loader"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<h1><a id="_107"></a>总结</h1>
+<p>好了，以上就是在vue 项目使用iframe 引用 本地静态 <code>html</code> 文件的方法。</p>
+<p>为了大家更加实际的体会，上方的两个例子写了一个demo 上传到github上了，上面看不懂的，可以直接下载例子参考。</p>
+<p><a href="https://github.com/rudyLittleLove/vue-cli2.0-iframe-loadhtml">vue-cli2.0 构建的项目使用iframe 引用本地静态html文件的demo</a><br>
+<a href="https://github.com/rudyLittleLove/vue-cli3.0-iframe-loadhtml">vue-cli3.0 构建的项目使用iframe 引用本地静态html文件的demo</a></p>
+</div>
+</body>
+
+</html>
